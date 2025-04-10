@@ -80,14 +80,62 @@ plt.hlines(xmin=0 , xmax= len(Total_T2_H_HEALTH) , y =UCL_B , label=f'UCL_b : {U
 plt.hlines(xmin=0 , xmax= len(Total_T2_H_HEALTH) , y =UCL_C , label=f'UCL_c : {UCL_C}' , colors ='purple')
 plt.legend()
 plt.grid()
-plt.title("T2")
+plt.title("Phase 1 - T2 For Data Health")
+plt.show()
+
+
+
+Total_T2_H_FAULT = []
+for index in range(len(df_fault)) :
+    diff_profile_from_mu = df_fault.iloc[index , : ] - B_mu
+    T2F = diff_profile_from_mu @ s_reverse @ diff_profile_from_mu.T
+    Total_T2_H_FAULT.append(T2F)
+
+
+
+plt.figure(figsize=(10,10))
+plt.scatter(range(len(Total_T2_H_FAULT)) , Total_T2_H_FAULT  , label="T2")
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_FAULT) , y =UCL_B , label=f'UCL_b : {UCL_B}' , colors= 'r' )
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_FAULT) , y =UCL_C , label=f'UCL_c : {UCL_C}' , colors ='purple')
+plt.legend()
+plt.grid()
+plt.title("Phase 2 - T2 For Data Fault - alpha : [0.001-0.050] and Void : [0.1-0.4]")
 plt.show()
 
 
 
 
+def calculate_mean(input_list) :
+    _s = 0
+    for i in input_list :
+        _s += i
+    return _s / len(input_list)
+
+
+C_bar = calculate_mean(Total_T2_H_HEALTH)
+
+UCL_CBAR = C_bar + 3 * (C_bar) ** 0.5
+LCL_CBAR = C_bar - 3 * (C_bar) ** 0.5
+
+
+plt.figure(figsize=(10,10))
+plt.scatter(range(len(Total_T2_H_HEALTH)) , Total_T2_H_HEALTH  , label="T2")
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_HEALTH) , y =UCL_CBAR , label=f'UCL_cbar : {UCL_CBAR}' , colors= 'r' )
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_HEALTH) , y =LCL_CBAR , label=f'LCL_cbar : {LCL_CBAR}' , colors ='purple')
+plt.legend()
+plt.grid()
+plt.title("Phase 1 - T2 For Data Health With LCL , UCL C bar ")
+plt.show()
 
 
 
+plt.figure(figsize=(10,10))
+plt.scatter(range(len(Total_T2_H_FAULT)) , Total_T2_H_FAULT  , label="T2")
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_FAULT) , y =UCL_CBAR , label=f'UCL_cbar : {UCL_CBAR}' , colors= 'red' )
+plt.hlines(xmin=0 , xmax= len(Total_T2_H_FAULT) , y =LCL_CBAR , label=f'LCL_cbar : {LCL_CBAR}' , colors ='green')
+plt.legend()
+plt.grid()
+plt.title("Phase 2 - T2 For Data Fault - alpha : [0.001-0.050] and Void : [0.1-0.4]")
+plt.show()
 
 
