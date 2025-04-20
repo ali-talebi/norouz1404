@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend
 import pandas as pd
 import numpy as np
 import os
@@ -8,7 +10,7 @@ from sklearn.covariance import MinCovDet
 
 Total_Df = pd.DataFrame()
 
-root_data = 'DATA_GENERATED/fix/2/alpha_1_50'
+root_data = 'DATA_GENERATED/fix/alpha_1_50'
 
 columns_ = ['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5', 'R2',
             'locate', 'class', 'alpha', 'void', 'SSE', 'R2_adj', 'stat_error',
@@ -40,7 +42,7 @@ print("Robust Covariance Matrix (MCD):\n", cov_robust)
 XTX_INVERSE_SIGMA_2_inverse = np.linalg.inv(cov_robust)
 
 
-root2 = 'DATA_GENERATED/fix/alpha_4000_5000'
+root2 = 'DATA_GENERATED/fix/alpha_1_50'
 Total_Df2 = pd.DataFrame(columns=columns_)
 for index, name in enumerate(os.listdir(root2)):
     df2 = pd.read_csv(f'{root2}/{name}')
@@ -52,9 +54,10 @@ df_fault2  = Total_Df2[Total_Df2['class'] == 1.0 ][['bias', 'betha_1', 'betha_2'
 
 S_0_positive = 0
 S_0_negetive = 0
-for i in range(1 , 20 ) :
-
-    shifts = np.array([i/100 , i/100 , 0 , i/100 , 0 , i/100 ])
+data_phase_1 = df_health
+check_data   = df_fault2
+for i in range(1 , 5 ) :
+    shifts = np.array([(i/20) * data_phase_1['bias'].std() , (0/10) * data_phase_1['betha_1'].std() , 0 * data_phase_1['betha_2'].std() , 0 * data_phase_1['betha_3'].std() , 0* data_phase_1['betha_4'].std() , (i/10)* data_phase_1['betha_5'].std() ])
     SHIFT_COVARIANCE_VARIANCE = shifts @ XTX_INVERSE_SIGMA_2_inverse
     D      = SHIFT_COVARIANCE_VARIANCE @ shifts.T
     print("D : " , D )
@@ -64,8 +67,8 @@ for i in range(1 , 20 ) :
     # print(a_T)
     s_s_positive = []
     s_s_negetive = []
-    for j in range(len(df_fault2)) :
-        zj_mines_mu = df_fault2.iloc[j, :] - mcd.location_
+    for j in range(len(check_data)) :
+        zj_mines_mu = check_data.iloc[j, :] - mcd.location_
         zj_mines_mu2 = np.array(zj_mines_mu)
         zj_mines_mu2 = zj_mines_mu2.reshape(6,1)
         a_T_zj_mines_mu = a_T @ zj_mines_mu2
@@ -94,7 +97,7 @@ for i in range(1 , 20 ) :
     plt.legend()
     plt.grid()
     # plt.title(f"MCUSUM Chart For Phase 1")
-    plt.title(f"MCUSUM Chart For Phase 2 - Detecting Shift λ={i / 100} In Bias , β1 , β3 and β5 ")
-    plt.xlabel("DATA Fault With alpha:[4.0-4.050]")
+    plt.title(f"MCUSUM Chart For Phase 2 - Detecting Shift λ={i/10}σ In Bias , β5 ")
+    plt.xlabel("DATA Fault With Alpha : [0.001-0.050] and void : [0.1-0.4] ")
     plt.show()
     print("*****************************************************************")

@@ -1,19 +1,19 @@
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import os
-
-
+from matplotlib import rcParams
 
 
 Total_Df = pd.DataFrame()
 
-root_data = 'DATA_GENERATED/fix/2/alpha_1_50'
+root_data = 'DATA_GENERATED/fix/alpha_1_50'
 
 columns_ = ['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5', 'R2',
             'locate', 'class', 'alpha', 'void', 'SSE', 'R2_adj', 'stat_error',
             'p_value_error', 'DW' , 'var_errors', 'SST', 'MSR', 'MSE', 'F', 'p_value_f']
-
 
 
 Total_Df = pd.DataFrame(columns=columns_)
@@ -25,7 +25,7 @@ for index, name in enumerate(os.listdir(root_data)):
 
 overall_variance = Total_Df[(Total_Df['class'] == 0.0)]['var_errors'].sum()  / len(Total_Df[(Total_Df['class'] == 0.0)])
 # Total_Df = Total_Df.sample()
-root_new = 'DATA_GENERATED/fix/3/alpha_300_350'
+root_new = 'DATA_GENERATED/fix/alpha_1_50'
 Total_Df2 = pd.DataFrame(columns=columns_)
 for index, name in enumerate(os.listdir(root_new)):
     df2 = pd.read_csv(f'{root_new}/{name}')
@@ -33,13 +33,11 @@ for index, name in enumerate(os.listdir(root_new)):
     del df2
 
 
-df_main  = Total_Df[(Total_Df['class'] == 1.0)][['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5']]
-
+df_main  = Total_Df[Total_Df['class'] == 0.0][['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5']]
 
 print("overall_variance : " , overall_variance )
 
-
-df_fault = Total_Df2[(Total_Df2['class'] == 0.0)][['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5']]
+df_fault = Total_Df2[Total_Df2['class'] == 1.0][['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5']]
 
 # print(df_main.describe())
 # # df_main.describe().to_csv('DF_HEALTH.csv')
@@ -56,9 +54,9 @@ S_0_positive = 0
 S_0_negetive = 0
 for i in range(1 , 10 ) :
 
-    shifts = np.array([i/10 , 0 , 0 , 0 , 0 , 0 ])
+    shifts = np.array([(i/100) * df_main['bias'].std() , (i/100) * df_main['betha_1'].std() , 0 * df_main['betha_2'].std() , 0 * df_main['betha_3'].std() , 0* df_main['betha_4'].std() , (i/100)* df_main['betha_5'].std() ])
     SHIFT_COVARIANCE_VARIANCE = shifts @ XTX_INVERSE_SIGMA_2_inverse
-    D      = SHIFT_COVARIANCE_VARIANCE @ shifts.T
+    D      = (SHIFT_COVARIANCE_VARIANCE @ shifts.T) ** 0.5
     print("D : " , D )
     a_T = SHIFT_COVARIANCE_VARIANCE / D
     a_T = np.array(a_T).reshape(1,6)
@@ -95,8 +93,8 @@ for i in range(1 , 10 ) :
     plt.hlines(xmin=0 , xmax=len(s_s_positive  ) ,  y = 12.59 , label='UCL = 12.59 ' , colors='r')
     plt.legend()
     plt.grid()
-    plt.title(f"MCUSUM Chart For Phase 2 - Detecting Shift λ={i} In β3 ")
-    plt.xlabel("DATA Fault With alpha:[10-10.050]")
+    plt.title(f"MCUSUM Chart For Phase 2 - Detecting Shift λ={i/10}σ In Bias ")
+    plt.xlabel("DATA Fault With alpha:[0.001-0.050]")
     plt.show()
     print("*****************************************************************")
 

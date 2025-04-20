@@ -25,11 +25,11 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
-import tensorflow as tf
-from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, BatchNormalization
-from tensorflow.keras.utils import to_categorical
+# import tensorflow as tf
+# from tensorflow import keras
+# from keras.models import Sequential
+# from keras.layers import Dense, Dropout, BatchNormalization
+# from tensorflow.keras.utils import to_categorical
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from matplotlib import cm
 from scipy.stats import shapiro
@@ -41,7 +41,7 @@ from scipy.stats import f
 
 root_path = 'Total_Data_Simulation'
 # store_path = 'DATA_GENERATED/fix/alpha_10000_11000'
-store_path = 'DATA_GENERATED/fix/alpha_10000_11000_2'
+store_path = 'DATA_GENERATED/fix/alpha_100_150'
 
 total_file_link = []
 for i in os.listdir(root_path):
@@ -49,7 +49,7 @@ for i in os.listdir(root_path):
 
 pd.read_csv(total_file_link[2])
 
-total_alpha_content = [i / 1000 for i in range(1000, 1001)]
+total_alpha_content = [i / 1000 for i in range(100, 150)]
 total_flat_content  = [i / 10   for i in range(1, 5)]
 total_location = list(range(2, 15))
 
@@ -66,19 +66,19 @@ points.append([330, -7.5, 0])
 points.append([330, -12.5, 0])
 points.append([330, -17.5, 0])
 total_points = np.array(points)
-plt.scatter(total_points[:, 0], total_points[:, 1], label="target")
-plt.legend()
-plt.title("Blade Shape - Picture 1.7 page 7 document volume 2 ")
-plt.xlabel(" X (in) ")
-plt.ylabel(" Y (in) ")
-plt.grid()
-plt.show()
+# plt.scatter(total_points[:, 0], total_points[:, 1], label="target")
+# plt.legend()
+# plt.title("Blade Shape - Picture 1.7 page 7 document volume 2 ")
+# plt.xlabel(" X (in) ")
+# plt.ylabel(" Y (in) ")
+# plt.grid()
+# plt.show()
 
 p = pd.DataFrame(total_points, columns=['X', 'Y', 'Z'])
-
+p.tail(10)
 main_data_frame = pd.DataFrame()
 
-p.tail(10)
+
 
 total_simulation = {
     'bias_correlation': [],
@@ -210,7 +210,7 @@ for iter_alpha in total_alpha_content:
                 related_x = -1
                 related_y = -1
                 related_z = -1
-                for iteration in range(1):
+                for iteration in range(5):
                     alpha = 0
                     term = 0
                     Flat_Add = 0
@@ -286,107 +286,104 @@ for iter_alpha in total_alpha_content:
                             total_fault_t_iter.append([x_sample, y_sample, z_flat])
                             total_health_iter_t.append([x_sample, y_sample, z_flap_health])
 
-                    fig = plt.figure(figsize=(25 , 13 ))
-                    ax0 = fig.add_subplot(1 , 6 , 1 , projection='3d' )
-                    ax1 = fig.add_subplot(1 , 6 , 2 , projection='3d' )
-                    ax2 = fig.add_subplot(1 , 6 , 3 , projection='3d' )
-                    ax3 = fig.add_subplot(1 , 6 , 4 , projection='3d' )
-                    ax4 = fig.add_subplot(1 , 6 , 5 , projection='3d' )
-                    ax5 = fig.add_subplot(1 , 6 , 6 , projection='3d' )
-
-                    ax6  = fig.add_subplot(3 , 6 , 1 )
-                    ax60 = fig.add_subplot(3 , 6 , 2 )
-                    ax7  = fig.add_subplot(3 , 6 , 3 )
-                    ax8  = fig.add_subplot(3 , 6 , 4 )
-
-                    # ax3 = fig.add_subplot(1 , 6 , 4 )
-                    # ax4 = fig.add_subplot(1 , 6 , 5 )
-                    # ax5 = fig.add_subplot(1 , 6 , 6 )
-
-
-
-
-
-
-                    total_health_iter = np.array(total_health_iter)
-                    total_health_iter = np.array(total_health_iter)
-                    total_fault_iter = np.array(total_fault_iter)
-                    total_fault_t_iter = np.array(total_fault_t_iter)
-                    total_health_iter_t = np.array(total_health_iter_t)
-                    print(f"iter_alpha : {iter_alpha} , flap: {iter_flat} , locate : {locate} ,  iteration : {iteration} ")
-
-                    ax0.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ] , total_health_iter[: , 2 ]  , label='health' , c = 'r'   )
-                    ax0.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1 ] , total_fault_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}' ,  c = 'b' )
-                    ax1.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1 ] , total_fault_iter[: , 2 ]  ,       label=f'fault_alpha : {iter_alpha}' , c ='blue', s = 30     )
-                    ax1.scatter3D(total_fault_t_iter[: , 0 ] , total_fault_t_iter[: , 1 ] , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}+ void {iter_flat/10}' , c='red' , s = 30 )
-                    ax2.scatter3D(total_fault_t_iter[: , 0 ] , total_fault_t_iter[: , 1 ] , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}+ void {iter_flat/10}' , c='green'  , s = 30  )
-
-                    ax3.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_health_iter[: , 2 ]  ,       label=f'fault_void ' , c ='blue'  )
-                    ax3.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1]  , total_fault_iter[: , 2 ]  ,       label=f'fault_alpha : {iter_alpha}' , c ='yellow' )
-                    ax3.set_xlabel("axis x ")
-                    ax3.set_ylabel("axis y ")
-                    ax3.set_zlabel("axis z ")
-
-                    ax4.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_health_iter[: , 2 ]  ,       label='health' , c ='blue',  )
-                    ax4.scatter3D(total_fault_t_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha+ void ' , c='red' ,  )
-                    ax4.set_xlabel("axis x")
-                    ax4.set_ylabel("axis y")
-                    ax4.set_zlabel("axis z")
-
-                    ax5.scatter3D(total_health_iter[: , 0 ]  , total_health_iter[: , 1 ] , total_fault_iter[: , 2 ]  ,       label='health' , c ='blue' ,  )
-                    ax5.scatter3D(total_health_iter_t[: , 0 ] , total_health_iter_t[: , 1] , total_fault_t_iter[: , 2 ]  , label='fault_void' , c='green' ,  )
-                    ax5.set_xlabel("axis x ")
-                    ax5.set_ylabel("axis y ")
-                    ax5.set_zlabel("axis z ")
-
-                    ax6.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 ,  )
-                    ax6.scatter(total_health_iter_t[: , 0 ]  , total_health_iter_t[: , 2 ]  , label='fault_void' , c='r' , s = 30 ,  )
-                    ax6.set_xlabel("axis  x ")
-                    ax6.set_ylabel("axis  z ")
-                    ax6.set_title(f"alpha : {iter_alpha} , void : {iter_flat/10} , location : {locate}")
-
-                    ax60.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 ,  )
-                    ax60.scatter(total_fault_iter[: , 0 ]  , total_fault_iter[: , 2 ]  , label='fault_alpha' , c='r' , s = 30 ,  )
-                    ax60.set_xlabel("axis  x ")
-                    ax60.set_ylabel("axis  z ")
-
-                    ax7.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 , alpha = 0.5 )
-                    ax7.scatter(total_fault_t_iter[: , 0 ]  , total_fault_t_iter[: , 2 ]  , label='fault_alpha + void ' , c='yellow' , s = 30  )
-                    ax7.set_xlabel("axis  x ")
-                    ax7.set_ylabel("axis  z ")
-
-                    ax8.scatter(total_fault_iter[: , 0 ]  , total_fault_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}' , c='b' , )
-                    ax8.scatter(total_fault_t_iter[: , 0 ]  , total_fault_t_iter[: , 2 ]  , label='Fault_alpha + void' , c='orange')
-                    ax8.set_xlabel("axis  x ")
-                    ax8.set_ylabel("axis  z ")
-
-
-                    ax0.legend()
-                    ax0.grid()
-                    ax0
-                    ax1.legend()
-                    ax1.grid()
-                    ax2.legend()
-                    ax2.grid()
-                    ax3.legend()
-                    ax3.grid()
-
-                    ax4.legend()
-                    ax4.grid()
-                    ax5.legend()
-                    ax5.grid()
-
-
-                    ax6.legend()
-                    ax6.grid()
-                    ax60.legend()
-                    ax60.grid()
-
-                    ax7.legend()
-                    ax7.grid()
-                    ax8.legend()
-                    ax8.grid()
-                    plt.show()
+                    # fig = plt.figure(figsize=(25 , 13 ))
+                    # ax0 = fig.add_subplot(1 , 6 , 1 , projection='3d' )
+                    # ax1 = fig.add_subplot(1 , 6 , 2 , projection='3d' )
+                    # ax2 = fig.add_subplot(1 , 6 , 3 , projection='3d' )
+                    # ax3 = fig.add_subplot(1 , 6 , 4 , projection='3d' )
+                    # ax4 = fig.add_subplot(1 , 6 , 5 , projection='3d' )
+                    # ax5 = fig.add_subplot(1 , 6 , 6 , projection='3d' )
+                    #
+                    # ax6  = fig.add_subplot(3 , 6 , 1 )
+                    # ax60 = fig.add_subplot(3 , 6 , 2 )
+                    # ax7  = fig.add_subplot(3 , 6 , 3 )
+                    # ax8  = fig.add_subplot(3 , 6 , 4 )
+                    #
+                    #
+                    #
+                    #
+                    #
+                    #
+                    #
+                    # total_health_iter = np.array(total_health_iter)
+                    # total_health_iter = np.array(total_health_iter)
+                    # total_fault_iter = np.array(total_fault_iter)
+                    # total_fault_t_iter = np.array(total_fault_t_iter)
+                    # total_health_iter_t = np.array(total_health_iter_t)
+                    # print(f"iter_alpha : {iter_alpha} , flap: {iter_flat} , locate : {locate} ,  iteration : {iteration} ")
+                    #
+                    # ax0.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ] , total_health_iter[: , 2 ]  , label='health' , c = 'r'   )
+                    # ax0.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1 ] , total_fault_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}' ,  c = 'b' )
+                    # ax1.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1 ] , total_fault_iter[: , 2 ]  ,       label=f'fault_alpha : {iter_alpha}' , c ='blue', s = 30     )
+                    # ax1.scatter3D(total_fault_t_iter[: , 0 ] , total_fault_t_iter[: , 1 ] , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}+ void {iter_flat/10}' , c='red' , s = 30 )
+                    # ax2.scatter3D(total_fault_t_iter[: , 0 ] , total_fault_t_iter[: , 1 ] , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}+ void {iter_flat/10}' , c='green'  , s = 30  )
+                    #
+                    # ax3.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_health_iter[: , 2 ]  ,       label=f'fault_void ' , c ='blue'  )
+                    # ax3.scatter3D(total_fault_iter[: , 0 ] , total_fault_iter[: , 1]  , total_fault_iter[: , 2 ]  ,       label=f'fault_alpha : {iter_alpha}' , c ='yellow' )
+                    # ax3.set_xlabel("axis x ")
+                    # ax3.set_ylabel("axis y ")
+                    # ax3.set_zlabel("axis z ")
+                    #
+                    # ax4.scatter3D(total_health_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_health_iter[: , 2 ]  ,       label='health' , c ='blue',  )
+                    # ax4.scatter3D(total_fault_t_iter[: , 0 ] , total_health_iter[: , 1 ]  , total_fault_t_iter[: , 2 ]  , label=f'fault_alpha+ void ' , c='red' ,  )
+                    # ax4.set_xlabel("axis x")
+                    # ax4.set_ylabel("axis y")
+                    # ax4.set_zlabel("axis z")
+                    #
+                    # ax5.scatter3D(total_health_iter[: , 0 ]  , total_health_iter[: , 1 ] , total_fault_iter[: , 2 ]  ,       label='health' , c ='blue' ,  )
+                    # ax5.scatter3D(total_health_iter_t[: , 0 ] , total_health_iter_t[: , 1] , total_fault_t_iter[: , 2 ]  , label='fault_void' , c='green' ,  )
+                    # ax5.set_xlabel("axis x ")
+                    # ax5.set_ylabel("axis y ")
+                    # ax5.set_zlabel("axis z ")
+                    #
+                    # ax6.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 ,  )
+                    # ax6.scatter(total_health_iter_t[: , 0 ]  , total_health_iter_t[: , 2 ]  , label='fault_void' , c='r' , s = 30 ,  )
+                    # ax6.set_xlabel("axis  x ")
+                    # ax6.set_ylabel("axis  z ")
+                    # ax6.set_title(f"alpha : {iter_alpha} , void : {iter_flat/10} , location : {locate}")
+                    #
+                    # ax60.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 ,  )
+                    # ax60.scatter(total_fault_iter[: , 0 ]  , total_fault_iter[: , 2 ]  , label='fault_alpha' , c='r' , s = 30 ,  )
+                    # ax60.set_xlabel("axis  x ")
+                    # ax60.set_ylabel("axis  z ")
+                    #
+                    # ax7.scatter(total_health_iter[: , 0 ]  , total_health_iter[: , 2 ]  , label='health' , c='b' , s = 40 , alpha = 0.5 )
+                    # ax7.scatter(total_fault_t_iter[: , 0 ]  , total_fault_t_iter[: , 2 ]  , label='fault_alpha + void ' , c='yellow' , s = 30  )
+                    # ax7.set_xlabel("axis  x ")
+                    # ax7.set_ylabel("axis  z ")
+                    #
+                    # ax8.scatter(total_fault_iter[: , 0 ]  , total_fault_iter[: , 2 ]  , label=f'fault_alpha : {iter_alpha}' , c='b' , )
+                    # ax8.scatter(total_fault_t_iter[: , 0 ]  , total_fault_t_iter[: , 2 ]  , label='Fault_alpha + void' , c='orange')
+                    # ax8.set_xlabel("axis  x ")
+                    # ax8.set_ylabel("axis  z ")
+                    #
+                    #
+                    # ax0.legend()
+                    # ax0.grid()
+                    # ax0
+                    # ax1.legend()
+                    # ax1.grid()
+                    # ax2.legend()
+                    # ax2.grid()
+                    # ax3.legend()
+                    # ax3.grid()
+                    #
+                    # ax4.legend()
+                    # ax4.grid()
+                    # ax5.legend()
+                    # ax5.grid()
+                    #
+                    #
+                    # ax6.legend()
+                    # ax6.grid()
+                    # ax60.legend()
+                    # ax60.grid()
+                    #
+                    # ax7.legend()
+                    # ax7.grid()
+                    # ax8.legend()
+                    # ax8.grid()
+                    # plt.show()
 
                     new_data_simulated_ = np.array(new_data_simulated_)
                     new_data_simulated_fault = np.array(new_data_simulated_fault)
@@ -965,7 +962,7 @@ for iter_alpha in total_alpha_content:
         df_Data["F"] = df_Data["MSR"] / df_Data["MSE"]
         df_Data['p_value_f'] = f.sf(df_Data["F"], 5, 48 - 5 - 1)
         df_Data.drop(['betha_0'], axis=1, inplace=True)
-        # df_Data.to_csv(f'{store_path}/alpha_{iter_alpha}void-{iter_flat}.csv', index=False)
+        df_Data.to_csv(f'{store_path}/alpha_{iter_alpha}void-{iter_flat}.csv', index=False)
 
         # --- learning
         # plt.figure(figsize= (10 , 10 ) )
