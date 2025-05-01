@@ -7,7 +7,7 @@ matplotlib.use('TkAgg')  # Use TkAgg backend
 import matplotlib.pyplot as plt
 
 Total_Df = pd.DataFrame()
-root_data = 'DATA_GENERATED/fix/alpha_1_50'
+root_data = 'Modified_DATA_GENERATOR/fix/alpha_1_50'
 
 columns_ = ['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5', 'R2',
             'locate', 'class', 'alpha', 'void', 'SSE', 'R2_adj', 'stat_error',
@@ -23,7 +23,7 @@ df_health = Total_Df[Total_Df['class'] == 0.0]
 df_fault = Total_Df[Total_Df['class'] == 1.0]
 
 df_health['sigma_2'] = df_health['SSE'] / (48 - 6 - 1)
-df_fault['sigma_2'] = df_fault['SSE'] / (48 - 6 - 1)
+df_fault['sigma_2']  = df_fault['SSE'] / (48 - 6 - 1)
 
 sigma_overall = ((df_health['sigma_2'] ** 0.5).sum()) / len(df_health)
 
@@ -40,7 +40,7 @@ target_mu = [df_health['bias'].mean().ravel().tolist()[0],
 
 V_Betha = pd.DataFrame(columns=['v_bias', 'v_betha_1', 'v_betha_2', 'v_betha_3', 'v_betha_4', 'v_betha_5'])
 
-df_check = df_fault
+df_check = df_health
 
 V_Betha['v_bias'] = (df_check['bias'] - target_mu[0]) / sigma_overall
 V_Betha['v_betha_1'] = (df_check['betha_1'] - target_mu[1]) / sigma_overall
@@ -80,20 +80,31 @@ vertical_zero = np.array([0, 0, 0, 0, 0, 0, 0]).reshape(7, 1)
 Sigma = np.concatenate([Sigma, vertical_zero], axis=1)
 Sigma[6, 6] = 1
 #
+pd.DataFrame(Sigma).to_csv('RT.csv' , index = False )
 # print(Sigma)
 # print("Sigma shape : " , Sigma.shape )
 
+Q_i = 0
+for profile in range(1 , len(V_Total) + 1 ) :
+    Q_i += (q ** ((i - 1) * alpha) - q ** ((i) * alpha ) ) ** 2
+
+
+
+print("Q i :  " , Q_i )
 
 for profile in range(len(V_Total)):
     _s = 0
     for i in range(1, profile + 1):
         _s += (q ** ((i - 1) * alpha) - q ** (i * alpha)) * V_Total[profile - i + 1, :]
     Wj = _s + q ** (profile * alpha) * W0
-    T2_j = Wj.T @ np.linalg.inv(30 * Sigma) @ Wj
+    T2_j = Wj.T @ np.linalg.inv(Q_i * Sigma) @ Wj
     T2_list.append(T2_j)
 
 print("T2_list : ", T2_list)
-plt.scatter(range(len(T2_list)) , T2_list )
+plt.scatter(range(len(T2_list)) , T2_list , label = "T2" )
 plt.legend()
 plt.grid()
+plt.title("Fault Data - Alpha:[0.001-0.050],Void:[0.1-0.4]")
+# plt.title("Data Fault")
 plt.show()
+

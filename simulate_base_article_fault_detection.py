@@ -4,8 +4,10 @@ import numpy as np
 import os
 from scipy.stats import beta
 from scipy.stats import chi2
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend
 
-root_data = 'DATA_GENERATED/fix/2/alpha_1_50'
+root_data = 'DATA_GENERATED/fix/alpha_1_50'
 
 columns_ = ['bias', 'betha_1', 'betha_2', 'betha_3', 'betha_4', 'betha_5', 'R2',
             'locate', 'class', 'alpha', 'void', 'SSE', 'R2_adj', 'stat_error',
@@ -41,8 +43,8 @@ print("S matrix : \n", S_matrix.shape)
 
 s_reverse = np.linalg.inv(S_matrix)
 
-B_mu = [df_health['bias'].mean(), df_health['betha_1'].mean(), df_health['betha_2'].mean(), df_fault['betha_3'].mean(), df_fault['betha_4'].mean(),
-        df_fault['betha_5'].mean()]
+B_mu = [df_health['bias'].mean(), df_health['betha_1'].mean(), df_health['betha_2'].mean(), df_health['betha_3'].mean(), df_health['betha_4'].mean(),
+        df_health['betha_5'].mean()]
 
 B_mu = np.array(B_mu)
 
@@ -63,7 +65,7 @@ alpha = 0.05  # Significance level
 # Calculate the Beta distribution parameters
 a = k / 2
 f = (2 * (q-1) ** 2 ) / (3*q-4)
-b = (f - k - 1) / 2
+b = (q - k - 1) / 2
 
 
 # Calculate the critical value from the Beta distribution
@@ -71,6 +73,7 @@ beta_critical = beta.ppf(1 - alpha, a, b)
 
 # Calculate UCL_B using Equation (6)
 UCL_B = ((q - 1)**2 / q) * beta_critical
+UCL_H = ((q - 1)**2 / q) * beta_critical
 UCL_C = chi2.ppf(1 - alpha, k)
 
 
