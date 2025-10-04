@@ -1,0 +1,58 @@
+import numpy as np
+import pandas as pd
+
+# فرض کنید که شما داده‌های خود را دارید (اینجا به طور تصادفی ایجاد می‌کنیم)
+# برای هر نمونه، 14 ردیف و 3 ویژگی داریم (در اینجا 99 نمونه داریم)
+np.random.seed(42)
+num_samples = 99
+num_rows = 14
+num_features = 3
+
+# داده‌های نمونه (می‌توانید این داده‌ها را با داده‌های خود جایگزین کنید)
+data = np.random.rand(num_samples, num_rows, num_features)
+
+# تابع برای محاسبه آماره T^2 Hotelling
+def hotelling_t2(data):
+    # محاسبه میانگین داده‌ها
+    mean_data = np.mean(data, axis=0)
+    
+    # محاسبه ماتریس واریانس-کواریانس
+    covariance_matrix = np.cov(data.T)  # ماتریس واریانس-کواریانس برای هر ویژگی
+    
+    # معکوس ماتریس واریانس-کواریانس
+    inv_cov_matrix = np.linalg.inv(covariance_matrix)
+    
+    # محاسبه T^2 برای هر نمونه
+    t2_values = np.zeros(data.shape[0])
+    
+    for i in range(data.shape[0]):
+        diff = data[i] - mean_data  # تفاوت هر نمونه با میانگین
+        t2_values[i] = np.dot(np.dot(diff, inv_cov_matrix), diff.T)  # محاسبه آماره T^2
+    
+    return t2_values
+
+# محاسبه آماره T^2 Hotelling برای داده‌های سالم (برای هر نمونه)
+t2_values = np.zeros((num_samples, num_rows))  # برای هر نمونه و هر ردیف
+
+for i in range(num_samples):
+    t2_values[i] = hotelling_t2(data[i])  # محاسبه برای هر نمونه
+
+# محاسبه حد بالای کنترل (UCL) برای Hotelling's T^2
+# استفاده از تعداد ویژگی‌ها برای محاسبه حد کنترل
+p = num_features  # تعداد ویژگی‌ها
+alpha = 0.01  # سطح اطمینان 99%
+n = num_rows  # تعداد ردیف‌ها
+
+# حد کنترل Hotelling T^2
+ucl = (n - 1) * (p * (n + 1) / (n * (n - p))) * np.percentile(t2_values, 100 * (1 - alpha))
+
+# نمایش حد کنترل
+print("حد کنترل Hotelling's T²:", ucl)
+
+# بررسی اینکه آیا نمونه‌ها از حد کنترل عبور کرده‌اند یا نه
+exceeds_ucl = t2_values > ucl
+
+# نمایش نتایج
+print("\nآیا نمونه‌ها از حد کنترل عبور کرده‌اند؟")
+print(exceeds_ucl)
+
